@@ -1,0 +1,26 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: resume-generator
+  namespace: resume-app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: resume-generator
+  template:
+    metadata:
+      labels:
+        app: resume-generator
+    spec:
+      containers:
+        - name: resume-generator
+          image: sourabhdey21700/resume-generator:v1
+          ports:
+            - containerPort: 5000
+          env:
+            - name: GOOGLE_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: gemini-secret
+                  key: GOOGLE_API_KEY 

@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Resume Generator</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .loading {
+            display: none;
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #3498db;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .fade-in {
+            animation: fadeIn 0.7s;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-blue-50 via-white to-blue-100 min-h-screen">
+    <div class="container mx-auto px-4 py-10">
+        <div class="flex flex-col items-center mb-10">
+            <div class="flex items-center gap-3 mb-2">
+                <span class="ph ph-file-text text-blue-600 text-4xl"></span>
+                <h1 class="text-5xl font-extrabold text-gray-800 tracking-tight">AI Resume Builder</h1>
+            </div>
+            <p class="text-lg text-gray-500 font-medium">Craft your professional resume in seconds with AI</p>
+        </div>
+        <div class="max-w-3xl mx-auto bg-white bg-opacity-90 rounded-2xl shadow-2xl p-8 mb-10 border border-blue-100">
+            <form onsubmit="event.preventDefault(); generateResume();" autocomplete="off">
+                <div class="mb-6">
+                    <label for="jobTitle" class="block text-gray-700 text-base font-semibold mb-2 flex items-center gap-2">
+                        <span class="ph ph-briefcase text-blue-500"></span> Enter Job Title
+                    </label>
+                    <div class="flex gap-4">
+                        <input type="text" id="jobTitle" 
+                               class="flex-1 shadow-sm border border-blue-200 rounded-lg w-full py-2 px-4 text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-400 transition"
+                               placeholder="e.g., DevOps Engineer, Python Developer, Network Engineer">
+                        <button type="submit"
+                                class="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-5 rounded-lg shadow transition duration-150 focus:outline-none focus:ring-2 focus:ring-blue-400">
+                            <span class="ph ph-magic-wand"></span> Generate Resume
+                        </button>
+                    </div>
+                </div>
+                <div class="mb-6">
+                    <label for="followupKeywords" class="block text-gray-700 text-base font-semibold mb-2 flex items-center gap-2">
+                        <span class="ph ph-pencil-simple text-yellow-500"></span> Follow-up Keywords <span class="text-xs text-gray-400">(customize your resume)</span>
+                    </label>
+                    <div class="flex gap-4">
+                        <input type="text" id="followupKeywords" 
+                               class="flex-1 shadow-sm border border-yellow-200 rounded-lg w-full py-2 px-4 text-gray-700 focus:outline-none focus:ring-2 focus:ring-yellow-400 transition"
+                               placeholder="e.g., add AWS certification, emphasize leadership, remove Docker">
+                        <button type="button" onclick="updateResume()"
+                                class="flex items-center gap-2 bg-yellow-500 hover:bg-yellow-600 text-white font-bold py-2 px-5 rounded-lg shadow transition duration-150 focus:outline-none focus:ring-2 focus:ring-yellow-400">
+                            <span class="ph ph-arrow-clockwise"></span> Update Resume
+                        </button>
+                    </div>
+                </div>
+            </form>
+            <div id="loading" class="loading mx-auto mt-4"></div>
+            <div id="error" class="hidden bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4 mt-4" role="alert"></div>
+        </div>
+        <div id="resumeContainer" class="max-w-3xl mx-auto bg-white bg-opacity-95 rounded-2xl shadow-xl p-8 fade-in border border-gray-200 hidden">
+            <div class="flex justify-between items-center mb-6">
+                <div class="flex items-center gap-2">
+                    <span class="ph ph-identification-badge text-green-600 text-2xl"></span>
+                    <h2 class="text-2xl font-extrabold text-gray-800 tracking-tight">Generated Resume</h2>
+                </div>
+                <div class="flex gap-2">
+                    <button onclick="downloadResume()" 
+                            class="flex items-center gap-2 bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded-lg shadow transition focus:outline-none focus:ring-2 focus:ring-green-400">
+                        <span class="ph ph-file-pdf"></span> Download PDF
+                    </button>
+                    <button onclick="downloadDoc()" 
+                            class="flex items-center gap-2 bg-blue-600 hover:bg-blue-800 text-white font-bold py-2 px-4 rounded-lg shadow transition focus:outline-none focus:ring-2 focus:ring-blue-400">
+                        <span class="ph ph-file-doc"></span> Download DOC
+                    </button>
+                </div>
+            </div>
+            <div id="resumeContent" class="prose max-w-none bg-gray-50 border border-gray-200 rounded-xl p-6 shadow-inner"></div>
+        </div>
+    </div>
+    <script>
+        async function generateResume() {
+            const jobTitle = document.getElementById('jobTitle').value.trim();
+            const followupKeywords = document.getElementById('followupKeywords').value.trim();
+            const loading = document.getElementById('loading');
+            const error = document.getElementById('error');
+            const resumeContainer = document.getElementById('resumeContainer');
+            const resumeContent = document.getElementById('resumeContent');
+
+            if (!jobTitle) {
+                error.textContent = 'Please enter a job title';
+                error.classList.remove('hidden');
+                return;
+            }
+
+            loading.style.display = 'block';
+            error.classList.add('hidden');
+            resumeContainer.classList.add('hidden');
+
+            try {
+                const response = await fetch('/generate', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ job_title: jobTitle, followup_keywords: followupKeywords }),
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    resumeContent.innerHTML = data.resume;
+                    resumeContainer.classList.remove('hidden');
+                    resumeContainer.classList.add('fade-in');
+                } else {
+                    throw new Error(data.error || 'Failed to generate resume');
+                }
+            } catch (err) {
+                error.textContent = err.message;
+                error.classList.remove('hidden');
+            } finally {
+                loading.style.display = 'none';
+            }
+        }
+
+        async function updateResume() {
+            const jobTitle = document.getElementById('jobTitle').value.trim();
+            if (!jobTitle) {
+                const error = document.getElementById('error');
+                error.textContent = 'Please enter a job title';
+                error.classList.remove('hidden');
+                return;
+            }
+            await generateResume();
+        }
+
+        function downloadResume() {
+            const element = document.getElementById('resumeContent');
+            const opt = {
+                margin: 1,
+                filename: 'resume.pdf',
+                image: { type: 'jpeg', quality: 0.98 },
+                html2canvas: { scale: 2 },
+                jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
+            };
+            html2pdf().set(opt).from(element).save();
+        }
+
+        function downloadDoc() {
+            const element = document.getElementById('resumeContent');
+            const html = `<!DOCTYPE html><html><head><meta charset='utf-8'></head><body>${element.innerHTML}</body></html>`;
+            const blob = new Blob([html], { type: 'application/msword' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'resume.doc';
+            document.body.appendChild(a);
+            a.click();
+            setTimeout(() => {
+                document.body.removeChild(a);
+                window.URL.revokeObjectURL(url);
+            }, 0);
+        }
+
+        document.getElementById('jobTitle').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                generateResume();
+            }
+        });
+        document.getElementById('followupKeywords').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                updateResume();
+            }
+        });
+    </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+</body>
+</html> 
