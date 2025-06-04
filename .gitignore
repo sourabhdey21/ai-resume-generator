@@ -37,3 +37,4 @@ ENV/
 # OS
 .DS_Store
 Thumbs.db 
+k8s/gemini-secret.yaml

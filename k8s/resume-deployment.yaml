@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
         - name: resume-generator
-          image: sourabhdey21700/resume-generator:v1
+          image: sourabhdey21700/resume-generator:v2
           ports:
             - containerPort: 5000
           env:

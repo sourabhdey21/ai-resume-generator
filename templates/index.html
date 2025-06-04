@@ -1,12 +1,12 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AI Resume Generator</title>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
-    <script src="https://unpkg.com/@phosphor-icons/web"></script>
     <style>
         body { font-family: 'Inter', sans-serif; }
         .loading {
@@ -34,9 +34,26 @@
 <body class="bg-gradient-to-br from-blue-50 via-white to-blue-100 min-h-screen">
     <div class="container mx-auto px-4 py-10">
         <div class="flex flex-col items-center mb-10">
-            <div class="flex items-center gap-3 mb-2">
+            <div class="flex items-center gap-3 mb-2 w-full justify-center">
+                <span class="inline-block h-12 w-12">
+                  <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <rect width="48" height="48" rx="12" fill="#2563eb"/>
+                    <path d="M16 18V14.8C16 13.2536 17.2536 12 18.8 12H29.2C30.7464 12 32 13.2536 32 14.8V33.2C32 34.7464 30.7464 36 29.2 36H18.8C17.2536 36 16 34.7464 16 33.2V30" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+                    <rect x="12" y="18" width="16" height="12" rx="2" fill="#fff"/>
+                    <rect x="15" y="21" width="10" height="2" rx="1" fill="#2563eb"/>
+                    <rect x="15" y="25" width="6" height="2" rx="1" fill="#2563eb"/>
+                  </svg>
+                </span>
                 <span class="ph ph-file-text text-blue-600 text-4xl"></span>
                 <h1 class="text-5xl font-extrabold text-gray-800 tracking-tight">AI Resume Builder</h1>
+                <div class="flex-1"></div>
+                <button onclick="openSupportModal()" class="flex items-center gap-2 bg-blue-700 hover:bg-blue-900 text-white font-bold py-2 px-4 rounded-lg shadow transition focus:outline-none focus:ring-2 focus:ring-blue-400 ml-6">
+                  <span class="ph ph-heart">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-5 h-5 inline-block align-middle">
+                      <path d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" />
+                    </svg>
+                  </span> Support
+                </button>
             </div>
             <p class="text-lg text-gray-500 font-medium">Craft your professional resume in seconds with AI</p>
         </div>
@@ -92,6 +109,22 @@
                 </div>
             </div>
             <div id="resumeContent" class="prose max-w-none bg-gray-50 border border-gray-200 rounded-xl p-6 shadow-inner"></div>
+        </div>
+        <!-- Support Modal -->
+        <div id="supportModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40 hidden">
+          <div class="bg-white rounded-2xl shadow-2xl p-8 max-w-sm w-full flex flex-col items-center relative">
+            <button onclick="closeSupportModal()" class="absolute top-3 right-3 text-gray-400 hover:text-gray-700 text-2xl font-bold">&times;</button>
+            <h3 class="text-xl font-bold text-gray-800 mb-4 flex items-center gap-2">
+              <span class="inline-block align-middle">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="red" class="w-6 h-6">
+                  <path d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" />
+                </svg>
+              </span>
+              Support via Paytm
+            </h3>
+            <img src="/static/paytm.png" alt="Paytm QR" class="w-56 h-56 object-contain rounded border border-cyan-200 shadow mb-2" />
+            <p class="text-gray-500 text-center text-sm mt-2">Scan this QR code in your Paytm app to support the developer. Thank you!</p>
+          </div>
         </div>
     </div>
     <script>
@@ -188,6 +221,13 @@
                 updateResume();
             }
         });
+
+        function openSupportModal() {
+            document.getElementById('supportModal').classList.remove('hidden');
+        }
+        function closeSupportModal() {
+            document.getElementById('supportModal').classList.add('hidden');
+        }
     </script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 </body>

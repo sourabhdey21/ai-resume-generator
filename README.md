@@ -2,7 +2,9 @@
 
 A modern web application that generates professional resumes using Google's Gemini AI based on job titles. The application is built with Python Flask and containerized using Docker.
 
-## Features
+# Dashboard
+![Dashboard](static/dashboard.png)
+
 
 - Generate professional resumes based on job titles
 - Modern, responsive UI using Tailwind CSS
